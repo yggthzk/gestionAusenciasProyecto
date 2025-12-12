@@ -5,22 +5,22 @@ from django.core.exceptions import ValidationError
 class SolicitudAusencia(models.Model):
     DEPARTAMENTOS = [
         ('rrhh', 'Recursos Humanos'),
-        ('it', 'Tecnología'),
+        ('it', 'Tecnologia'),
         ('finanzas', 'Finanzas'),
         ('operaciones', 'Operaciones'),
         ('ventas', 'Ventas'),
-        ('OTROS DEPARTAMENTOS', 'Sin departamento') # da error 01/12
+        ('otros', 'Otros Departamentos'),
     ]
 
     TIPOS_AUSENCIA = [
         ('vacaciones', 'Vacaciones'),
-        ('enfermedad', 'Baja Médica'),
+        ('enfermedad', 'Baja Medica'),
         ('asuntos_personales', 'Asuntos Personales'),
-        ('administrativo', 'Trámite Administrativo'),
+        ('administrativo', 'Tramite Administrativo'),
     ]
 
     ESTADOS = [
-        ('pendiente', 'Pendiente de Aprobación'),
+        ('pendiente', 'Pendiente de Aprobacion'),
         ('aprobada', 'Aprobada'),
         ('rechazada', 'Rechazada'),
     ]
@@ -54,4 +54,4 @@ class SolicitudAusencia(models.Model):
         ).exclude(id=self.id).count()
 
         if dias_usados >= 2 and self.estado == 'aprobada':
-            raise ValidationError("Límite de ausencias anuales excedido.")
+            raise ValidationError("Limite de ausencias anuales excedido.")
