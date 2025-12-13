@@ -9,8 +9,18 @@ def index(request):
     return render(request, 'core/index.html')
 
 class SolicitudViewSet(viewsets.ModelViewSet):
-    queryset = SolicitudAusencia.objects.all().order_by('-fecha_solicitud')
     serializer_class = SolicitudAusenciaSerializer
+
+    def get_queryset(self):
+        queryset = SolicitudAusencia.objects.all().order_by('-fecha_solicitud')
+        codigo = self.request.query_params.get('codigo', None)
+        
+        # Si envian un codigo, filtramos (vista empleado)
+        # Si no envian codigo, devolvemos todo (vista admin)
+        if codigo:
+            queryset = queryset.filter(codigo_empleado=codigo)
+            
+        return queryset
 
     @action(detail=True, methods=['post'])
     def gestionar(self, request, pk=None):
