@@ -1,57 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 
 class SolicitudAusencia(models.Model):
-    DEPARTAMENTOS = [
-        ('rrhh', 'Recursos Humanos'),
-        ('it', 'Tecnologia'),
-        ('finanzas', 'Finanzas'),
-        ('operaciones', 'Operaciones'),
-        ('ventas', 'Ventas'),
-        ('otros', 'Otros Departamentos'),
-    ]
-
-    TIPOS_AUSENCIA = [
+    TIPOS = [
         ('vacaciones', 'Vacaciones'),
-        ('enfermedad', 'Baja Medica'),
-        ('asuntos_personales', 'Asuntos Personales'),
-        ('administrativo', 'Tramite Administrativo'),
+        ('medica', 'Licencia Medica'),
+        ('personal', 'Dia Personal'),
     ]
-
     ESTADOS = [
-        ('pendiente', 'Pendiente de Aprobacion'),
+        ('pendiente', 'Pendiente'),
         ('aprobada', 'Aprobada'),
         ('rechazada', 'Rechazada'),
     ]
 
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solicitudes')
-    codigo_empleado = models.CharField(max_length=20, unique=True)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre_completo = models.CharField(max_length=200)
-    departamento = models.CharField(max_length=50, choices=DEPARTAMENTOS)
-    puesto_trabajo = models.CharField(max_length=100)
-    supervisor_directo = models.CharField(max_length=200)
-    
-    tipo_ausencia = models.CharField(max_length=30, choices=TIPOS_AUSENCIA, default='vacaciones')
-    fecha_ausencia = models.DateField()
+    codigo_empleado = models.CharField(max_length=50)
+    tipo_ausencia = models.CharField(max_length=20, choices=TIPOS)
+    fecha_inicio = models.DateField(null=True, blank=True)
+    fecha_fin = models.DateField(null=True, blank=True)
     motivo_detallado = models.TextField()
-    
-    correo_contacto = models.EmailField()
-    telefono_contacto = models.CharField(max_length=20)
-    telefono_emergencia = models.CharField(max_length=20)
-    
-    estado = models.CharField(max_length=30, choices=ESTADOS, default='pendiente')
+    url_justificativo = models.URLField(max_length=500, blank=True, null=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.codigo_empleado} - {self.fecha_ausencia}"
-
-    def clean(self):
-        dias_usados = SolicitudAusencia.objects.filter(
-            usuario=self.usuario, 
-            estado='aprobada'
-        ).exclude(id=self.id).count()
-
-        if dias_usados >= 2 and self.estado == 'aprobada':
-            raise ValidationError("Limite de ausencias anuales excedido.")
+        return f"{self.nombre_completo} - {self.estado}"
